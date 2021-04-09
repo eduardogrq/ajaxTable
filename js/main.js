@@ -8,9 +8,9 @@ const getProductData = () => {
     //console.log( fields )
 
     fields.forEach( field => {
-        console.log( field.name )
+        // console.log( field.name )
         productObjet[field.name] = field.value 
-        console.log( productObjet )
+        // console.log( productObjet )
     })
 
     let select = document.getElementById("category")
@@ -18,15 +18,18 @@ const getProductData = () => {
 
     //console.log( gender )
     let numberButton = document.getElementById("price")
-    let price = numberButton.value
+    let price = numberButton.value;
+    price = parseInt(price)
 
     productObjet = {...productObjet, category, price }
-    console.log( productObjet )
+    // console.log( productObjet )
     saveProduct( productObjet )
 
     fields.forEach( field => {
         field.value = ""
     })
+    numberButton.value = ""
+
 }
 
 //Botón para guardar
@@ -41,7 +44,8 @@ const saveProduct = product => {
         if (this.readyState == 4 && this.status == 200) {
            console.log( xhttp.response )
         //    $('#save-succesful').modal('show')
-            // printTable( getAlbumsCollection() )
+            printCard( getProductsCollection() )
+
         }
     }
 
@@ -57,7 +61,7 @@ const getProductsCollection = () => {
     
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            console.log( xhttp.response )
+            // console.log( xhttp.response )
             productsCollection = JSON.parse( xhttp.response)
         }
     }
@@ -69,74 +73,113 @@ const getProductsCollection = () => {
     return productsCollection    
 }
 
+// Eliminar productos
+const deleteProduct = event => {
+
+    let productKey = event.target.dataset.productKey
+
+    let xhttp = new XMLHttpRequest();
+    
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // console.log( xhttp.response )
+            printCard( getProductsCollection() )
+        }
+    }
+
+    xhttp.open("DELETE", `https://ajaxclass-1ca34.firebaseio.com/11g/lalo/products/${productKey}/.json`, false );
+
+    xhttp.send();
+}
+
+//Función para imprimir los datos de nuestra DB
 const printCard = data => {
 
+    //Eliminar la tabla
+    let productsContainer = document.getElementById("products-container");
+
+    while (productsContainer.lastElementChild) {
+        productsContainer.removeChild( productsContainer.lastElementChild );
+    }
 
     for( key in data ){
-        // console.log( key )
-        // console.log( data[key] )
 
-
-        let card = document.createElement("div")
-        card.classList.add("card")
+        let card = document.createElement("div");
+        card.classList.add("card");
+        productsContainer.appendChild(card)
 
         let {image, name, description, category, price} = data[key];
 
         let img = document.createElement("img");
-        img.classList.add("card-img-top")
-        img.setAtribute('src',`${image}`)
+        img.classList.add("card-img-top");
+        img.setAttribute('src',`${image}`);
+        card.appendChild(img)
 
-        let cardBody = document.createElement("div")
-        cardBody.classList.add("card-body")
+        let cardBody = document.createElement("div");
+        cardBody.classList.add("card-body");
+        card.appendChild(cardBody)
 
+        let cardTitle = document.createElement("h5");
+        cardTitle.classList.add("card-title")
+        let textTitle = document.createTextNode(name);
+        cardTitle.appendChild(textTitle);
+        cardBody.appendChild(cardTitle)
 
+        let boxDescription = document.createElement("p");
+        boxDescription.classList.add("card-text")
+        let textDescription = document.createTextNode(`Descripción: ${description}`);
+        boxDescription.appendChild(textDescription);
+        cardBody.appendChild(boxDescription)
 
+        let boxCategory = document.createElement("p");
+        boxCategory.classList.add("card-text")
+        let textCategory = document.createTextNode(`Categoría: ${category}`);
+        boxCategory.appendChild(textCategory);
+        cardBody.appendChild(boxCategory)
+
+        let boxPrice = document.createElement("p");
+        boxPrice.classList.add("card-text")
+        let textPrice = document.createTextNode(`Precio: $${price.toFixed(2)}`);
+        boxPrice.appendChild(textPrice);
+        cardBody.appendChild(boxPrice);
+
+        let deleteButton = document.createElement("button");
+        deleteButton.classList.add("btn" ,"btn-danger");
+        let textDelete = document.createTextNode("Eliminar");
+        deleteButton.appendChild(textDelete);
+        cardBody.appendChild(deleteButton);
+        deleteButton.dataset.productKey = key;
+
+        deleteButton.addEventListener("click", deleteProduct)
         
-        // let { name, gender, band } = dataToPrint[key]
-
-        // let albumRow = document.createElement("tr")
-
-        // let indexTd = document.createElement("td")
-        // let nameTd = document.createElement("td")
-        // let bandTd = document.createElement("td")
-        // let genderTd = document.createElement("td")
-        // let buttonTd = document.createElement("td")
-
-        // let indexText = document.createTextNode( index )
-        // let nameText = document.createTextNode( name )
-        // let bandText = document.createTextNode( band )
-        // let genderText = document.createTextNode( gender )
-
-        // let deleteButton = document.createElement("button")
-        // deleteButton.classList = "btn btn-outline-danger delete-button"
-        // deleteButton.dataset.albumKey = key
-
-        // let buttonText = document.createTextNode("Borrar")
-
-        // deleteButton.appendChild(buttonText)
-
-        // indexTd.appendChild( indexText )
-        // nameTd.appendChild( nameText )
-        // bandTd.appendChild( bandText )
-        // genderTd.appendChild( genderText )
-        // buttonTd.appendChild( deleteButton )
-
-        // albumRow.appendChild(indexTd)
-        // albumRow.appendChild(nameTd)
-        // albumRow.appendChild(bandTd)
-        // albumRow.appendChild(genderTd)
-        // albumRow.appendChild(buttonTd)
-
-        // table.appendChild(albumRow)
-        // index++
     }
 }
 
-/* <div class="card" style="width: 18rem;">
-  <img class="card-img-top" src="..." alt="Card image cap">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div> */
+printCard(getProductsCollection())
+
+const getFilter = array => {
+    let select = document.getElementById("filter-category");
+    inputCategory = select.options[select.selectedIndex]
+    
+    let filterArray = {}
+    // console.log(array);
+
+    if(category.value === "todos"){
+        // printCard(array)
+    } else{
+        for(key in array){
+            let {image, name, description, category, price} = array[key];
+            if (inputCategory.value === category){
+                filterArray = array[key];
+                console.log(filterArray);
+            }
+            
+        }
+    }
+
+    // console.log(category.value);
+}
+
+let filterButton = document.getElementById("filter-category");
+// filterButton.addEventListener('change', getFilter(getProductsCollection()))
+
