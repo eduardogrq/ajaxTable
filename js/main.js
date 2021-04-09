@@ -157,29 +157,50 @@ const printCard = data => {
 
 printCard(getProductsCollection())
 
+// const getFilter = array => {
+//     let select = document.getElementById("filter-category");
+//     inputCategory = select.options[select.selectedIndex]
+    
+//     let filterArray = {}
+//     // console.log(array);
+
+//     if(category.value === "todos"){
+//         // printCard(array)
+//     } else{
+//         for(key in array){
+//             let {image, name, description, category, price} = array[key];
+//             if (inputCategory.value === category){
+//                 filterArray = array[key];
+//                 console.log(filterArray);
+//             }
+            
+//         }
+//     }
+
+//     // console.log(category.value);
+// }
+
 const getFilter = array => {
     let select = document.getElementById("filter-category");
     inputCategory = select.options[select.selectedIndex]
-    
     let filterArray = {}
     // console.log(array);
-
-    if(category.value === "todos"){
-        // printCard(array)
-    } else{
+    if(inputCategory.value === "todos"){
+         printCard(array)
+    }else{
         for(key in array){
             let {image, name, description, category, price} = array[key];
             if (inputCategory.value === category){
-                filterArray = array[key];
-                console.log(filterArray);
+                objectItem=array[key]
+                filterArray = {...filterArray, objectItem};
+                //console.log(filterArray);
             }
-            
+            printCard(filterArray)
         }
     }
-
     // console.log(category.value);
 }
 
-let filterButton = document.getElementById("filter-category");
+// let filterButton = document.getElementById("filter-category");
 // filterButton.addEventListener('change', getFilter(getProductsCollection()))
 
